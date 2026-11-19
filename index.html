@@ -87,6 +87,19 @@ const $ = id => document.getElementById(id);
 
 $("title").textContent = CONFIG.title; $("when").textContent = CONFIG.when; document.title = CONFIG.title + " – RSVP";
 const show = id => ["s1","s2","s3"].forEach(s => $(s).classList.toggle("hide", s !== id));
+
+let me = {};
+
+$("f1").onsubmit = e => {
+  e.preventDefault();
+  const name = $("name").value.trim(), email = $("email").value.trim();
+  if (!name) return $("e1").textContent = "Enter your full name.";
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return $("e1").textContent = "Enter a valid email address.";
+  $("e1").textContent = ""; me = {name, email};
+  $("hi").textContent = `${name.split(" ")[0]}, tap an open seat. It's held for you as soon as you confirm.`;
+  show("s2");
+};
+$("back").onclick = () => show("s1");
 </script>
 </body>
 </html>
