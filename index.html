@@ -49,6 +49,9 @@ input:focus,button:focus-visible,.seat:focus-visible{outline:3px solid var(--pic
 .seat[disabled]{background:var(--taken);color:transparent;cursor:not-allowed}
 .key{display:flex;gap:16px;justify-content:center;color:var(--mute);font-size:.85rem;margin:16px 0}
 .key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+.ticket{border:1.5px dashed var(--mute);border-radius:14px;padding:22px;margin:20px 0;background:var(--panel)}
+.ticket b{display:block;font:400 3rem/1 'Bowlby One',Impact,sans-serif;color:var(--free)}
 </style>
 </head>
 <body>
@@ -135,9 +138,10 @@ $("f1").onsubmit = async e => {
 $("back").onclick = () => show("s1");
 
 $("go").onclick = () => {
-  taken.add(pick); pick = null;
-  $("go").disabled = true; $("go").textContent = "Select a seat";
-  draw();
+  taken.add(pick);
+  $("who").textContent = me.name; $("seatno").textContent = "Seat " + pick; $("when2").textContent = CONFIG.title + " · " + CONFIG.when;
+  $("sent").textContent = "Demo mode: no email sent. Connect the backend to send confirmations.";
+  show("s3");
 };
 
 </script>
