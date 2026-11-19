@@ -6,7 +6,39 @@
 <title>Misbeehaved Premiere RSVP</title>
 <link href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-/* Temp */
+@font-face{font-family:'Sticky Bold';src:url('StickyBold.ttf') format('truetype');font-weight:bold;font-style:normal}
+:root{--bg:#ffd21f;--panel:#fff;--ink:#ffffff;--mute:#f2f2f2;--free:#ffd21f;--taken:#444;--pick:#ffffff;--line:#ffd21f}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background-color:var(--bg);
+  background-image:
+    repeating-linear-gradient(180deg, #ffd21f 0 110px, #0b0b0b 110px 220px);
+  color:var(--ink);
+  font:16px/1.5 'Sticky Bold',"DM Sans",system-ui,sans-serif;
+  min-height:100vh;
+}
+main{
+  max-width:520px;
+  margin:28px auto;
+  padding:32px 24px 48px;
+  background:rgba(11,11,11,0.88);
+  border:3px solid #ffd21f;
+  border-radius:20px;
+  box-shadow:0 12px 30px rgba(0,0,0,0.45);
+}
+h1{font:700 clamp(2.2rem,11vw,3.2rem)/1.05 'Sticky Bold',sans-serif;color:#ffffff;margin:0 0 6px}
+h2{font:400 1.6rem 'Sticky Bold','Bowlby One',Impact,sans-serif;color:#ffd21f;margin:0 0 4px}
+p{margin:0 0 14px;color:var(--mute)}
+.meta{color:#ffd21f;font-weight:500;margin-bottom:22px}
+label{display:block;font-weight:500;margin:14px 0 6px;color:#ffffff}
+input{width:100%;padding:14px;border-radius:10px;border:2px solid var(--line);background:var(--panel);color:#0b0b0b;font:inherit}
+input:focus,button:focus-visible,.seat:focus-visible{outline:3px solid var(--pick);outline-offset:2px}
+.btn{width:100%;margin-top:22px;padding:15px;border:0;border-radius:10px;background:#ffd21f;color:#0b0b0b;font:700 1rem 'Sticky Bold',"DM Sans",sans-serif;cursor:pointer}
+.btn:disabled{background:var(--taken);color:#999;cursor:not-allowed}
+.link{background:none;border:0;color:#ffd21f;text-decoration:underline;cursor:pointer;font:inherit;margin-top:14px;padding:0}
+.err{color:#ff8a80;min-height:1.4em;margin:10px 0 0}
+.hide{display:none}
 </style>
 </head>
 <body>
@@ -15,7 +47,7 @@
 <section id="s1">
   <h1 id="title"></h1>
   <div class="meta" id="when"></div>
-  <p>Four broke bees. One Queen. Rent is due.</p>
+  <p>Thanks for your interest in Misbeehaved!</p>
   <p>Reserve your seat. It takes about a minute, and your confirmation arrives by email.</p>
   <form id="f1" novalidate>
     <label for="name">Full name</label>
@@ -48,8 +80,8 @@
 </main>
 <script>
 const CONFIG = {
-  title: "Misbeehaved",
-  when: "Date and time TBD · FAU Theater #2"   // edit me
+  title: "Misbeehaved Premiere",
+  when: "January 14th and 15th · FAU Theater #2"
 };
 const $ = id => document.getElementById(id);
 
