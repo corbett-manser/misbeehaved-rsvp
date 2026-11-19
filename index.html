@@ -9,15 +9,7 @@
 @font-face{font-family:'Sticky Bold';src:url('StickyBold.ttf') format('truetype');font-weight:bold;font-style:normal}
 :root{--bg:#ffd21f;--panel:#fff;--ink:#ffffff;--mute:#f2f2f2;--free:#ffd21f;--taken:#444;--pick:#ffffff;--line:#ffd21f}
 *{box-sizing:border-box}
-body{
-  margin:0;
-  background-color:var(--bg);
-  background-image:
-    repeating-linear-gradient(180deg, #ffd21f 0 110px, #0b0b0b 110px 220px);
-  color:var(--ink);
-  font:16px/1.5 'Sticky Bold',"DM Sans",system-ui,sans-serif;
-  min-height:100vh;
-}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "DM Sans",system-ui,sans-serif;min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 main{
   max-width:520px;
   margin:28px auto;
@@ -41,7 +33,8 @@ input:focus,button:focus-visible,.seat:focus-visible{outline:3px solid var(--pic
 .hide{display:none}
 
 .screen{background:var(--free);color:#0b0b0b;text-align:center;font:400 .85rem 'Bowlby One',Impact,sans-serif;padding:6px;border-radius:50% 50% 8px 8px/30px 30px 8px 8px;margin:6px 8% 22px;box-shadow:0 8px 30px rgba(255,210,31,.3)}
-.map{padding-bottom:6px}
+.map{overflow-x:auto;padding-bottom:6px}
+@media (max-width:380px){.seat{width:24px;height:24px}.row{gap:4px}}
 .row{display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:5px}
 .rl{width:18px;color:var(--mute);font-size:.8rem;text-align:center}
 .aisle{width:14px}
@@ -91,6 +84,7 @@ input:focus,button:focus-visible,.seat:focus-visible{outline:3px solid var(--pic
   <h2>You're on the list.</h2>
   <p id="sent"></p>
   <div class="ticket"><div id="who"></div><b id="seatno"></b><div id="when2" class="meta" style="margin:8px 0 0"></div></div>
+  <button class="btn" id="again" style="display:none">Start another sign-up (demo)</button>
   <p>Show this screen or your email at the door. Can't make it? Reply to your confirmation email so we can free your seat.</p>
   <p>Follow along for premiere news and behind-the-scenes buzz:</p>
   <div class="handle">@theuntraditionallosers</div>
@@ -101,6 +95,7 @@ input:focus,button:focus-visible,.seat:focus-visible{outline:3px solid var(--pic
 const CONFIG = {
   title: "Misbeehaved Premiere",
   when: "January 14th and 15th · FAU Theater #2",
+  ENDPOINT: "",
   rows: "ABCDEFGH", perRow: 10, aisleAfter: 5
 };
 const $ = id => document.getElementById(id);
@@ -111,7 +106,9 @@ const show = id => ["s1","s2","s3"].forEach(s => $(s).classList.toggle("hide", s
 let taken = new Set(), pick = null, me = {};
 
 async function loadTaken(){
-  if(!taken.size) taken = new Set(["D4","D5","E4","E5","B2","F8"]); // mock taken seats for testing
+  if (!CONFIG.ENDPOINT) { if(!taken.size) taken = new Set(["D4","D5","E4","E5","B2","F8"]); return; }
+  try { const r = await fetch(CONFIG.ENDPOINT + "?action=seats"); taken = new Set((await r.json()).taken); }
+  catch { $("e2").textContent = "Couldn't load the seat map. Check your connection and try again."; }
 }
 
 function draw(){
@@ -143,13 +140,29 @@ $("f1").onsubmit = async e => {
 };
 $("back").onclick = () => show("s1");
 
-$("go").onclick = () => {
-  taken.add(pick);
-  $("who").textContent = me.name; $("seatno").textContent = "Seat " + pick; $("when2").textContent = CONFIG.title + " · " + CONFIG.when;
-  $("sent").textContent = "Demo mode: no email sent. Connect the backend to send confirmations.";
-  show("s3");
+$("go").onclick = async () => {
+  $("go").disabled = true; $("go").textContent = "Reserving…"; $("e2").textContent = "";
+  let res;
+  if (!CONFIG.ENDPOINT) res = {ok:true};
+  else try {
+    const r = await fetch(CONFIG.ENDPOINT, {method:"POST", body: JSON.stringify({...me, seat: pick})});
+    res = await r.json();
+  } catch { res = {ok:false, error:"network"}; }
+  if (res.ok) {
+    taken.add(pick);
+    $("who").textContent = me.name; $("seatno").textContent = "Seat " + pick; $("when2").textContent = CONFIG.title + " · " + CONFIG.when;
+    $("sent").textContent = CONFIG.ENDPOINT ? `We sent your confirmation to ${me.email}.` : "Demo mode: no email sent. Connect the backend to send confirmations.";
+    $("again").style.display = CONFIG.ENDPOINT ? "none" : "block";
+    show("s3");
+  } else {
+    const msgs = {taken:`Seat ${pick} was just taken. Pick another seat.`, duplicate:"This email already has a reservation. Check your inbox for the confirmation.", network:"Couldn't reach the server. Try again."};
+    $("e2").textContent = msgs[res.error] || "Something went wrong. Try again.";
+    if (res.error === "duplicate") { $("go").textContent = "Reserve seat " + pick; $("go").disabled = false; return; }
+    pick = null; await loadTaken(); $("go").textContent = "Select a seat"; draw();
+  }
 };
 
+$("again").onclick = () => { $("f1").reset(); show("s1"); };
 </script>
 </body>
 </html>
