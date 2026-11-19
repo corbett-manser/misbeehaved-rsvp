@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Misbeehaved Premiere RSVP</title>
+<link href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Temp */
+</style>
+</head>
+<body>
+<main>
+
+<section id="s1">
+  <h1 id="title"></h1>
+  <div class="meta" id="when"></div>
+  <p>Four broke bees. One Queen. Rent is due.</p>
+  <p>Reserve your seat. It takes about a minute, and your confirmation arrives by email.</p>
+  <form id="f1" novalidate>
+    <label for="name">Full name</label>
+    <input id="name" autocomplete="name" required>
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="email" required>
+    <div class="err" id="e1" role="alert"></div>
+    <button class="btn" type="submit">Choose my seat</button>
+  </form>
+</section>
+
+<section id="s2" class="hide">
+  <h2>Pick your seat</h2>
+  <p id="hi"></p>
+  <div class="screen">SCREEN</div>
+  <div class="map" id="map"></div>
+  <div class="key"><span><i style="background:var(--free)"></i>Open</span><span><i style="background:var(--pick)"></i>Yours</span><span><i style="background:var(--taken)"></i>Taken</span></div>
+  <div class="err" id="e2" role="alert"></div>
+  <button class="btn" id="go" disabled>Select a seat</button>
+  <button class="link" id="back">Edit my details</button>
+</section>
+
+<section id="s3" class="hide">
+  <h2>You're on the list.</h2>
+  <p id="sent"></p>
+  <div class="ticket"><div id="who"></div><b id="seatno"></b><div id="when2" class="meta" style="margin:8px 0 0"></div></div>
+  <p>Show this screen or your email at the door. Can't make it? Reply to your confirmation email so we can free your seat.</p>
+</section>
+
+</main>
+<script>
+const CONFIG = {
+  title: "Misbeehaved",
+  when: "Date and time TBD · FAU Theater #2"   // edit me
+};
+const $ = id => document.getElementById(id);
+
+$("title").textContent = CONFIG.title; $("when").textContent = CONFIG.when; document.title = CONFIG.title + " – RSVP";
+const show = id => ["s1","s2","s3"].forEach(s => $(s).classList.toggle("hide", s !== id));
+</script>
+</body>
+</html>
