@@ -39,6 +39,16 @@ input:focus,button:focus-visible,.seat:focus-visible{outline:3px solid var(--pic
 .link{background:none;border:0;color:#ffd21f;text-decoration:underline;cursor:pointer;font:inherit;margin-top:14px;padding:0}
 .err{color:#ff8a80;min-height:1.4em;margin:10px 0 0}
 .hide{display:none}
+
+.screen{background:var(--free);color:#0b0b0b;text-align:center;font:400 .85rem 'Bowlby One',Impact,sans-serif;padding:6px;border-radius:50% 50% 8px 8px/30px 30px 8px 8px;margin:6px 8% 22px;box-shadow:0 8px 30px rgba(255,210,31,.3)}
+.map{padding-bottom:6px}
+.row{display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:5px}
+.rl{width:18px;color:var(--mute);font-size:.8rem;text-align:center}
+.aisle{width:14px}
+.seat{width:27px;height:27px;border-radius:7px 7px 4px 4px;border:0;background:var(--free);color:#0b0b0b;font-size:.65rem;font-weight:700;cursor:pointer;padding:0}
+.seat[disabled]{background:var(--taken);color:transparent;cursor:not-allowed}
+.key{display:flex;gap:16px;justify-content:center;color:var(--mute);font-size:.85rem;margin:16px 0}
+.key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 </style>
 </head>
 <body>
@@ -81,25 +91,55 @@ input:focus,button:focus-visible,.seat:focus-visible{outline:3px solid var(--pic
 <script>
 const CONFIG = {
   title: "Misbeehaved Premiere",
-  when: "January 14th and 15th · FAU Theater #2"
+  when: "January 14th and 15th · FAU Theater #2",
+  rows: "ABCDEFGH", perRow: 10, aisleAfter: 5
 };
 const $ = id => document.getElementById(id);
 
 $("title").textContent = CONFIG.title; $("when").textContent = CONFIG.when; document.title = CONFIG.title + " – RSVP";
 const show = id => ["s1","s2","s3"].forEach(s => $(s).classList.toggle("hide", s !== id));
 
-let me = {};
+let taken = new Set(), pick = null, me = {};
 
-$("f1").onsubmit = e => {
+async function loadTaken(){
+  if(!taken.size) taken = new Set(["D4","D5","E4","E5","B2","F8"]); // mock taken seats for testing
+}
+
+function draw(){
+  const m = $("map"); m.innerHTML = "";
+  for (const r of CONFIG.rows) {
+    const row = document.createElement("div"); row.className = "row";
+    row.innerHTML = `<span class="rl">${r}</span>`;
+    for (let n = 1; n <= CONFIG.perRow; n++) {
+      const id = r + n, b = document.createElement("button");
+      b.className = "seat" + (id === pick ? " pick" : ""); b.textContent = n; b.type = "button";
+      b.setAttribute("aria-label", `Seat ${id}` + (taken.has(id) ? ", taken" : ""));
+      b.disabled = taken.has(id);
+      b.onclick = () => { pick = id; $("go").disabled = false; $("go").textContent = "Reserve seat " + id; draw(); };
+      row.appendChild(b);
+      if (n === CONFIG.aisleAfter) { const a = document.createElement("span"); a.className = "aisle"; row.appendChild(a); }
+    }
+    m.appendChild(row);
+  }
+}
+
+$("f1").onsubmit = async e => {
   e.preventDefault();
   const name = $("name").value.trim(), email = $("email").value.trim();
   if (!name) return $("e1").textContent = "Enter your full name.";
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return $("e1").textContent = "Enter a valid email address.";
   $("e1").textContent = ""; me = {name, email};
   $("hi").textContent = `${name.split(" ")[0]}, tap an open seat. It's held for you as soon as you confirm.`;
-  show("s2");
+  await loadTaken(); pick = null; $("go").disabled = true; $("go").textContent = "Select a seat"; draw(); show("s2");
 };
 $("back").onclick = () => show("s1");
+
+$("go").onclick = () => {
+  taken.add(pick); pick = null;
+  $("go").disabled = true; $("go").textContent = "Select a seat";
+  draw();
+};
+
 </script>
 </body>
 </html>
